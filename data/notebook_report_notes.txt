@@ -1,0 +1,24 @@
+### Cleaning ALL original records (before sampling)
+
+- Original Kaggle rows examined: **7,728,394**
+- Invalid required-field rows excluded: **7**
+- Duplicate accident IDs removed from complete source: **0**
+- **Complete cleaned dataset saved locally: 7,728,387 records**
+- Full cleaned CSV location: `C:\Users\20bma\Downloads\US_Accidents_Kaggle\US_Accidents_March23_CLEANED.csv.gz`
+
+### Sampling the saved complete cleaned dataset
+
+- Requested sampling fraction: **2.0%** (deterministic accident ID hash)
+- Actual fraction of cleaned population: **2.01%**
+- Records saved for Streamlit: **155,283**
+- Broad distribution comparisons with the **full cleaned** dataset: state: 0.197 pp; severity: 0.103 pp; year: 0.105 pp
+- States and years represented in sample: **49**, **2016–2023**
+
+### Findings for the current filter selection
+
+- Filtered sample contains **155,283** records.
+- Most common traffic-impact severity level: **2**, with **123,869 of 155,283** reports (79.8%).
+- The most frequent known weather category was **Fair** (51,721 of 151,788 reports with known weather).
+- Highest observed monthly sample count: **December 2022**, with **3,959** reports (not an accident-risk ranking).
+
+**Limitations.** The complete cleaned CSV is retained only locally; the hosted site uses the 2% cleaned-data sample. Reporting coverage and traffic exposure vary by state and year. Counts do not establish accident risk, and weather comparisons are descriptive, not causal. Small subgroups may contain few sampled records.

@@ -1,61 +1,145 @@
-# Homework #4 — US Traffic Accidents Dashboard
+# US Traffic Accidents Dashboard
 
-Python/Streamlit + Plotly dashboard using the [US-Accidents Kaggle dataset](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents/), covering February 2016–March 2023.
+An interactive traffic accident dashboard developed using Python, Streamlit, Pandas, and Plotly. The application explores reported traffic accidents across the United States from February 2016 through March 2023.
 
-**Public Streamlit URL:** `PASTE_YOUR_DEPLOYED_STREAMLIT_URL_HERE` (add after deployment).
+Users can investigate geographic distributions, accident severity, weather conditions, and temporal trends through interactive filters and visualizations.
 
-## Data preparation: clean the entire source FIRST, then sample
+## Dashboard Features
 
-Open `Homework4_Traffic_Accidents_Preparation.ipynb` in JupyterLab and run all cells in order. The notebook can initialize supporting Python files if opened from the `Classwork` directory. The official Kaggle CSV is downloaded to, or reused from, your **Downloads** folder.
+The dashboard includes:
 
-There are two separate data-processing stages:
+- **State filtering:** Explore accident records from individual states, multiple states, or all available states.
+- **Severity filtering:** Select any combination of severity levels 1–4, representing the reported impact on traffic.
+- **Time filtering:** Examine accidents within a selected year range.
+- **Accident location map:** Interactive geographic visualization of reported accident locations, colored by severity.
+- **Severity distribution:** Bar chart comparing accident counts across severity levels.
+- **Weather analysis:** Visualizations of reported weather conditions and visibility.
+- **Monthly trends:** Time-series visualization of accident records across the dataset's observation period.
+- **Dynamic findings:** Descriptive statistics and observations that update with the selected filters.
 
-1. **Full cleaning (all ~7.7 million source records):** Read the original CSV in chunks; validate accident IDs, state, severity, timestamps and coordinates; remove invalid records and duplicate IDs across chunks; preserve missing optional weather values, replace missing weather labels with `Unknown`, and convert implausible weather measurements to missing. Save the ENTIRE cleaned dataset to `Downloads/US_Accidents_Kaggle/US_Accidents_March23_CLEANED.csv.gz`, with its `full_cleaning_summary.json` audit. This saved full cleaned file is not part of the Streamlit deployment. Processing uses chunks but keeps unique IDs in memory for global deduplication, so allow sufficient RAM and disk space.
-2. **Sampling of already-cleaned records:** Read the saved full cleaned CSV, select approximately **2%** using a deterministic hash of the existing accident `ID`, compare state/year/severity distributions to the **full cleaned population**, and write the small `data/us_accidents_sample.csv.gz` plus `data/preparation_summary.json` for Streamlit. The sample is selected *after* the complete full-source cleaning stage.
+The interface is organized into three tabs: **Overview & Map**, **Weather & Time**, and **Data Notes**.
 
-The clean stage is reused without re-running if its file and audit match the unchanged raw source. Set `REBUILD_CLEANED=True` in the notebook to regenerate it, or pass `--rebuild-cleaned` in the CLI.
+## Dataset
 
-**Do not upload the large original Kaggle CSV, the full cleaned CSV, or Kaggle credentials to GitHub.** Upload only the small sampled CSV.gz, the portable audit JSON and your source files. The complete cleaned dataset is retained locally for documentation and further work.
+**Source:** [US-Accidents: A Countrywide Traffic Accident Dataset](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents/)
 
-To run without Jupyter, from this project directory:
+The original dataset contains 7,728,394 accident records and includes geographic coordinates, timestamps, severity levels, and weather-related measurements.
 
-```powershell
-python prepare_data.py --input "C:\Users\YOUR_USERNAME\Downloads\US_Accidents_Kaggle\US_Accidents_March23.csv" --fraction 0.02
+### Data Preparation
+
+The dataset was processed using Pandas with chunk-based operations to manage memory usage.
+
+The complete dataset was cleaned before sampling:
+
+1. Loaded and inspected all 7,728,394 source records.
+2. Validated accident identifiers, state codes, severity levels, timestamps, and geographic coordinates.
+3. Removed seven records with invalid timestamps and checked for duplicate accident IDs.
+4. Standardized missing weather labels as `Unknown` and retained missing optional measurements.
+5. Identified implausible numeric weather measurements and replaced those values with missing values.
+6. Converted timestamps and derived year and month fields.
+7. Saved the complete cleaned dataset containing **7,728,387 records**.
+
+The full cleaned dataset was retained locally. A smaller subset was prepared separately for the interactive application.
+
+### Sampling Strategy
+
+A reproducible 2% sample was selected from the saved, fully cleaned dataset using deterministic hashing of accident identifiers.
+
+| Measure | Records |
+|---|---:|
+| Original dataset | 7,728,394 |
+| Invalid records excluded | 7 |
+| Complete cleaned dataset | 7,728,387 |
+| Dashboard sample | 155,283 |
+| Actual sampling fraction | 2.009% |
+
+The sample preserves broad patterns in the original cleaned dataset while reducing memory consumption and improving dashboard responsiveness.
+
+Sampling validation compared the state, severity, and year distributions against the complete cleaned dataset. Maximum absolute differences were 0.197, 0.103, and 0.105 percentage points, respectively.
+
+The application uses the sampled dataset for its charts and statistics. The location map additionally limits the number of displayed points to maintain interactivity.
+
+## Exploratory Findings
+
+The cleaned sample contains 155,283 records representing 49 states and spanning 2016–2023.
+
+For the full sample:
+
+- **Severity 2** was the most frequently recorded severity level, accounting for 123,869 records (79.8%).
+- **Fair** was the most frequently reported known weather condition, appearing in 51,721 of 151,788 records with specified weather conditions.
+- **December 2022** had the highest observed monthly count, with 3,959 sampled accident records.
+
+These findings describe the distribution of recorded accidents within the sample. They should not be interpreted as measurements of accident risk or evidence of causal relationships.
+
+## Project Structure
+
+| File | Description |
+|---|---|
+| `app.py` | Streamlit interface, interactive filters, and dashboard layout |
+| `dashboard_logic.py` | Data filtering, Plotly visualizations, and descriptive findings |
+| `prepare_data.py` | Full-dataset cleaning, validation, and reproducible sampling |
+| `requirements.txt` | Python package dependencies |
+| `data/us_accidents_sample.csv.gz` | Cleaned sample used by the dashboard |
+| `data/preparation_summary.json` | Data-cleaning and sampling audit |
+| `tests/test_dashboard.py` | Automated tests for data processing and visualizations |
+
+The original source CSV and complete cleaned CSV are maintained locally rather than included in the GitHub repository.
+
+## Running Locally
+
+Install the dependencies:
+
+```bash
+python -m pip install -r requirements.txt
 ```
 
-## Running the dashboard
+Launch the application from the project directory:
 
-From the project directory:
-
-```powershell
+```bash
 python -m streamlit run app.py
 ```
 
-Visit the local URL displayed (usually http://localhost:8501). Test the sidebar state, severity and year filters, map, severity chart, weather chart, monthly trend and empty selection handling. The map limits points for performance; other charts use the entire filtered 2% sample.
+Streamlit will provide a local address, typically `http://localhost:8501`.
 
-## GitHub and Streamlit Community Cloud
+The included compressed dataset allows the dashboard to run without downloading the original multi-gigabyte source file.
 
-Commit `app.py`, `dashboard_logic.py`, `prepare_data.py`, `requirements.txt`, `README.md`, `.streamlit/config.toml` and the contents of `data/` (especially `data/us_accidents_sample.csv.gz` and `data/preparation_summary.json`). Optionally include the preparation notebook and unit tests. Do not commit the multi-GB original or complete cleaned files.
+### Reproducing the Data Preparation
 
-On https://share.streamlit.io choose your repository, branch `main`, entry point `app.py`, and deploy. Check the public URL in an incognito browser window, then update this README.
+The complete data-cleaning and sampling process can be reproduced using the original Kaggle dataset and `prepare_data.py`.
 
-## Validation and limitations
+For example:
 
-```powershell
+```bash
+python prepare_data.py --input "path/to/US_Accidents_March23.csv" --fraction 0.02
+```
+
+This cleans and saves the full dataset before selecting the deployment sample.
+
+### Testing
+
+Run the automated tests using:
+
+```bash
 python -m unittest discover -s tests -v
 ```
 
-The tests use small artificial fixtures (never presented as real accidents). The full-cleaning audit counts raw, invalid, duplicated and valid records. Sampling diagnostics compare state, severity and year proportions between the **complete cleaned dataset and its sample**, not the raw and sampled datasets. These are one-dimensional comparisons; rare filtered groups may be less representative.
+The tests cover data cleaning, filtering, visualizations, sampling, and the full-cleaning workflow.
 
-Accident severities indicate traffic disruption, not injury/fatality severity. Raw incident counts are not rates per mile driven, and changes in reporting coverage influence apparent trends. Weather comparisons are observational, not evidence of causality.
+## Limitations
 
-## Report
+The dashboard is intended for exploratory analysis of reported accident records.
 
-Write the required eight sections in Overleaf (Introduction; Data Exploration and Preparation; Dashboard Design; Key Features and Visualizations; Insights and Findings; Future Improvements; Conclusion; References). Include **real screenshots** of the running Streamlit dashboard and its charts/map, plus the public URL.
+- The dataset does not include every traffic accident in the United States, and reporting coverage varies by location and time.
+- The deployed application uses a 2% sample. Small geographic or temporal selections may contain relatively few observations.
+- Accident counts are not adjusted for traffic volume, miles traveled, or other exposure measures.
+- Severity levels describe traffic impact rather than injury or fatality severity.
+- Weather comparisons are descriptive and do not establish causation.
+- The dataset begins in February 2016 and ends in March 2023; incomplete coverage and changes in reporting can influence apparent time trends.
 
 ## References
 
-- https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents/
-- https://docs.streamlit.io/
-- https://plotly.com/python/plotly-express/
-- https://github.com/Kaggle/kagglehub
+- [US-Accidents Dataset — Kaggle](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents/)
+- [Streamlit Documentation](https://docs.streamlit.io/)
+- [Plotly Python Documentation](https://plotly.com/python/)
+- [Pandas Documentation](https://pandas.pydata.org/docs/)
+- [KaggleHub](https://github.com/Kaggle/kagglehub)

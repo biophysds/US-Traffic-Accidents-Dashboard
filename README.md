@@ -4,6 +4,8 @@ An interactive traffic accident dashboard developed using Python, Streamlit, Pan
 
 Users can investigate geographic distributions, accident severity, weather conditions, and temporal trends through interactive filters and visualizations.
 
+**Live Dashboard:** [US Traffic Accidents Dashboard](https://us-traffic-accidents-dashboard-epjbxf3yjjd9norce6mc3v.streamlit.app)
+
 ## Dashboard Features
 
 The dashboard includes:
